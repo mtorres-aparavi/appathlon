@@ -1,13 +1,13 @@
 # 🤖 Appathlon
 
-## Aparavi Semantic Search
+## Aparavi Semantic Search Demo
 
 [![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/mtorres-aparavi/appathlon)
 
 ## Features
 
 - ⚡ deploy this thing in less than 5 minutes
-- 🚀 streaming responses
+- 🚀 streaming responses(not really)
 - 💯 simple, high-performance chat interface
 - ⚛️ easy to customize: built with React, Tailwind and TypeScript
 
