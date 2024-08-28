@@ -1,0 +1,10 @@
+[build]
+publish = "dist/static"
+command = "npm run build"
+[dev]
+command = "npm run dev"
+
+[template.environment]
+APARAVI_HOST = "your aparavi url"
+APARAVI_USERNAME = "your aparavi username"
+APARAVI_PASSWORD = "your aparavi password"
