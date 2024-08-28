@@ -4,110 +4,116 @@ import { appConfig } from "../../config.browser";
 const API_PATH = "/api/chat";
 
 interface ChatMessage {
-  role: "user" | "assistant";
-  content: string;
+    role: "user" | "assistant";
+    content: string;
+    chunk?: 83,
+    context?: string[],
+    isDeleted?: boolean,
+    isTable?: boolean,
+    nodeId?: string,
+    objectId?: string,
+    parent?: string,
+    permissionId?: number,
+    score?: number,
+    tableId?: number
 }
 
 function streamAsyncIterator(stream: ReadableStream) {
-  const reader = stream.getReader();
-  return {
-    next() {
-      return reader.read();
-    },
-    return() {
-      reader.releaseLock();
-      return {
-        value: {},
-      };
-    },
-    [Symbol.asyncIterator]() {
-      return this;
-    },
-  };
+    const reader = stream.getReader();
+    return {
+        next() {
+            return reader.read();
+        },
+        return() {
+            reader.releaseLock();
+            return {
+                value: {},
+            };
+        },
+        [Symbol.asyncIterator]() {
+            return this;
+        },
+    };
 }
 
 export function useChat() {
-  const [currentChat, setCurrentChat] = useState<string | null>(null);
-  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
-  const [state, setState] = useState<"idle" | "waiting" | "loading">("idle");
+    const [currentChat, setCurrentChat] = useState<string | null>(null);
+    const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
+    const [state, setState] = useState<"idle" | "waiting" | "loading">("idle");
+    const [abortionStatus, setAbortionStatus] = useState<number>(0);
 
-  const abortController = useMemo(() => new AbortController(), []);
+    const abortController = useMemo(() => new AbortController(), [abortionStatus]);
 
-  function cancel() {
-    setState("idle");
-    abortController.abort();
-    if (currentChat) {
-      const newHistory = [
-        ...chatHistory,
-        { role: "user", content: currentChat } as const,
-      ];
-
-      setChatHistory(newHistory);
-      setCurrentChat("");
-    }
-  }
-
-  function clear() {
-    console.log("clear");
-    setChatHistory([]);
-  }
-
-  const sendMessage = async (
-    message: string,
-    chatHistory: Array<ChatMessage>,
-  ) => {
-    setState("waiting");
-    let chatContent = "";
-    const newHistory = [
-      ...chatHistory,
-      { role: "user", content: message } as const,
-    ];
-
-    setChatHistory(newHistory);
-    const body = JSON.stringify({
-      messages: newHistory.slice(-appConfig.historyLength),
-    });
-
-    const decoder = new TextDecoder();
-
-    const res = await fetch(API_PATH, {
-      body,
-      method: "POST",
-      signal: abortController.signal,
-    });
-
-    setCurrentChat("...");
-
-    if (!res.ok || !res.body) {
-      setState("idle");
-      return;
+    function cancel() {
+        setState("idle");
+        abortController.abort("user cancelled");
     }
 
-    for await (const event of streamAsyncIterator(res.body)) {
-      setState("loading");
-      const data = decoder.decode(event).split("\n")
-      for (const chunk of data) {
-        if(!chunk) continue;
-        const message = JSON.parse(chunk);
-        if (message?.role === "assistant") {
-          chatContent = "";
-          continue;
+    function clear() {
+        console.log("clear");
+        setChatHistory([]);
+    }
+
+    const sendMessage = async (
+        message: string,
+        chatHistory: Array<ChatMessage>,
+    ) => {
+        setState("waiting");
+
+        const newHistory = [
+            ...chatHistory,
+            {role: "user", content: message} as const,
+        ];
+
+        setChatHistory(newHistory);
+
+        const body = JSON.stringify({
+            messages: newHistory.slice(-appConfig.historyLength),
+        });
+
+        setState("loading");
+
+        const res = await fetch(API_PATH, {
+            body,
+            method: "POST",
+            signal: abortController.signal,
+        });
+
+        setCurrentChat("...");
+
+        if (!res.ok || !res.body) {
+            setState("idle");
+            return;
         }
-        const content = message?.choices?.[0]?.delta?.content
-        if (content) {
-          chatContent += content;
-          setCurrentChat(chatContent);
+
+        const response = await res.json();
+
+        let incomingMessages: ChatMessage[] = [];
+
+        for (const message of response) {
+
+            if (message?.role === "assistant") {
+                continue;
+            }
+
+            incomingMessages.push({
+                ...message, role: "assistant"
+            } as const)
+
         }
-      }
-    }
 
-    setChatHistory((curr) => [
-      ...curr,
-      { role: "assistant", content: chatContent } as const,
-    ]);
-    setCurrentChat(null);
-    setState("idle");
-  };
+        // I should just stop coding forever and start my own tomato farm
+        // This is the shittiest thing i've ever done on react
+        setTimeout(() => {
+                setChatHistory((curr) => [
+                    ...curr,
+                    ...incomingMessages
+                ]);
+        }, 500);
 
-  return { sendMessage, currentChat, chatHistory, cancel, clear, state };
+        setCurrentChat(null);
+        setState("idle");
+    };
+
+    return {sendMessage, currentChat, chatHistory, cancel, clear, state};
 }

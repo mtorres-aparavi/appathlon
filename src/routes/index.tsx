@@ -4,11 +4,14 @@ import { useChat } from "../hooks/use-chat";
 import { ChatMessage } from "../components/ChatMessage";
 import { appConfig } from "../../config.browser";
 import { Welcome } from "../components/Welcome";
+import { Loading } from "../components/Loading";
 
 export default function Index() {
   const [message, setMessage] = useState<string>("");
+
   const { currentChat, chatHistory, sendMessage, cancel, state, clear } =
     useChat();
+
   const currentMessage = useMemo(() => {
     return { content: currentChat ?? "", role: "assistant" } as const;
   }, [currentChat]);
@@ -77,9 +80,10 @@ export default function Index() {
         <div className="flex items-center justify-center h-20">
           {state === "idle" ? null : (
             <button
-              className="bg-gray-100 text-gray-900 py-2 px-4 my-8"
+              className="bg-gray-100 text-gray-900 py-2 px-4 my-8 flex items-center gap-2"
               onClick={cancel}
             >
+              <Loading/>
               Stop search
             </button>
           )}

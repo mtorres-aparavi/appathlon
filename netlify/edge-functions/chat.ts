@@ -1,6 +1,8 @@
-import type { Config, Context } from "https://edge.netlify.com/";
+import type { Context, Config } from '@netlify/edge-functions';
 
-import { appConfig } from "../../config.edge";
+
+import { appConfig } from '../../config.edge.ts';
+import { semanticSearch } from "../../lib/edge/aparavi.ts";
 
 export default async function handler(
     request: Request,
@@ -14,7 +16,14 @@ export default async function handler(
     }
 
     try {
-        return new Response("hola", {
+
+        const data = await request.json();
+
+        const query = data.messages[0]?.content?.toLowerCase()?.trim().split(' ').join('+');
+
+        const search  = await semanticSearch(query ?? '');
+
+        return new Response(JSON.stringify(search), {
             headers: {
                 "Content-Type": "text/plain",
             },

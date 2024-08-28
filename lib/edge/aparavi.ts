@@ -1,5 +1,5 @@
-import { appConfig } from "../../config.edge";
-import { get, post } from 'axios'
+import { appConfig } from '../../config.edge.ts';
+import axios from 'axios'
 
 export const getBasicAuthToken = (username?: string, password?: string) => {
 
@@ -19,11 +19,28 @@ export const getBasicAuthToken = (username?: string, password?: string) => {
     return `Basic ${encodedCredentials}`;
 };
 
+export const semanticSearch = async (query: string, store = '/', limit = 10, offset = 0) => {
+    const url = `${appConfig.APARAVI_HOST}/server/api/v3/database/vectorSearch?search=${query}&storePath=${store}&offset=${offset}&limit=${limit}`;
+
+    const { data } = await axios.get(url, {
+        headers: {
+            Authorization: getBasicAuthToken()
+        }
+    });
+
+    if (data.error) {
+        console.error(data.error)
+        return undefined;
+    }
+
+    return data.data;
+}
+
 const getObject = async (properties: Record<string, unknown>) => {
     const keys = Object.keys(properties);
     const query = keys.map(key => `${key}=${properties[key]}`).join('&');
 
-    const { data } = await get(`${appConfig.APARAVI_HOST}}/server/api/v3/database/object?${query}`, {
+    const { data } = await axios.get(`${appConfig.APARAVI_HOST}}/server/api/v3/database/object?${query}`, {
         headers: {
             Authorization: getBasicAuthToken()
         }
@@ -37,7 +54,7 @@ const getObject = async (properties: Record<string, unknown>) => {
 };
 
 const postObject = async (object: Record<string, unknown>, options: Record<string, unknown>) => {
-    const { data } = await post(`${appConfig.APARAVI_HOST}/server/api/v3/database/object`, {
+    const { data } = await axios.post(`${appConfig.APARAVI_HOST}/server/api/v3/database/object`, {
         object,
         options
     }, {
@@ -53,8 +70,8 @@ const postObject = async (object: Record<string, unknown>, options: Record<strin
     return data.data;
 };
 
-const getConfig = async () => {
-    const { data } = await get(`${appConfig.APARAVI_HOST}/server/api/v3/config`, {
+export const getConfig = async () => {
+    const { data } = await axios.get(`${appConfig.APARAVI_HOST}/server/api/v3/config`, {
         headers: {
             Authorization: getBasicAuthToken()
         }
