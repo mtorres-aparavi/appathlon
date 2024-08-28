@@ -1,4 +1,3 @@
-import { useState } from "react";
 import "./App.css";
 import { Head } from "@impalajs/react/head";
 
@@ -15,7 +14,7 @@ export const App: React.FC<React.PropsWithChildren<AppProps>> = ({
       <Head>
         <title>{title}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="description" content="Create your own AI chat bot" />
+        <meta name="description" content="Create your own APARAVI semantic search" />
       </Head>
       {children}
     </>

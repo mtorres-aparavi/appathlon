@@ -11,7 +11,7 @@ export default async function handler(
 
     if (!appConfig.APARAVI_HOST || !appConfig.APARAVI_USERNAME || !appConfig.APARAVI_PASSWORD) {
         throw new Error(
-            "Aparavi basic auth infor is missing and must be set in config.edge.ts"
+            "Aparavi basic auth info is missing and must be set in config.edge.ts"
         );
     }
 

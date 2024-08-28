@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
+import type { StaticRouteProps } from "@impalajs/core";
 import { App } from "../App";
 import { useChat } from "../hooks/use-chat";
 import { ChatMessage } from "../components/ChatMessage";
@@ -6,7 +7,8 @@ import { appConfig } from "../../config.browser";
 import { Welcome } from "../components/Welcome";
 import { Loading } from "../components/Loading";
 
-export default function Index() {
+export default function Index(props: StaticRouteProps) {
+
   const [message, setMessage] = useState<string>("");
 
   const { currentChat, chatHistory, sendMessage, cancel, state, clear } =
