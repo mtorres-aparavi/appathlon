@@ -19,3 +19,27 @@
 
 Released under the MIT license. Free for any use. ©
 [Marlon Tornes](https://github.com/mtorres-aparavi) 2024.
+
+
+### Development
+
+- Install Netlify CLI
+```shell
+ npm install netlify-cli -g
+ ```
+- Create .env file that looks like this:
+```ini
+APARAVI_HOST=http://localhost:9452
+APARAVI_USERNAME: root
+APARAVI_PASSWORD: root
+```
+
+- Run dev server
+```shell
+netlify dev
+```
+
+---
+
+[MIT LICENSE](LICENSE.md)
+  
