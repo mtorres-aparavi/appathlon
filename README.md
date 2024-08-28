@@ -15,11 +15,6 @@
 1. [Deploy to Netlify](https://app.netlify.com/start/deploy?repository=https://github.com/mtorres-aparavi/appathlon),
    pasting the API key when prompted
 
----
-
-Released under the MIT license. Free for any use. ©
-[Marlon Tornes](https://github.com/mtorres-aparavi) 2024.
-
 
 ### Development
 
@@ -40,6 +35,6 @@ netlify dev
 ```
 
 ---
-
+Released under the MIT license. Free for any use. ©
 [MIT LICENSE](LICENSE.md)
   
